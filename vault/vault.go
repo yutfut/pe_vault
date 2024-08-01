@@ -7,7 +7,7 @@ import (
 )
 
 type VaultInterface interface {
-	GetSecret() (Secret, error)
+	GetSecret(secret any) error
 }
 
 type vault struct {
@@ -33,9 +33,8 @@ func NewVault(
 	}
 }
 
-func (v *vault) GetSecret() (Secret, error) {
+func (v *vault) GetSecret(secret any) error {
 	login := LoginResponse{}
-	secret := Secret{}
 
 	_, err := v.vaultClient.R().
 		SetBody(
@@ -45,7 +44,7 @@ func (v *vault) GetSecret() (Secret, error) {
 		).SetResult(&login).
 		Post(v.loginURL)
 	if err != nil {
-		return secret, err
+		return err
 	}
 
 	_, err = v.vaultClient.R().
@@ -57,8 +56,8 @@ func (v *vault) GetSecret() (Secret, error) {
 		Get(v.secretURL)
 	if err != nil {
 		log.Println(err)
-		return secret, err
+		return err
 	}
 
-	return secret, nil
+	return nil
 }
